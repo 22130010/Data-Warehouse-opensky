@@ -26,14 +26,13 @@ def load_config():
         print(f"LỖI: File 'config.ini' phải có mục [database]", file=sys.stderr)
         sys.exit(1)
     
-    # [FIX QUAN TRỌNG]: Ép kiểu SectionProxy sang Dictionary chuẩn của Python
-    # Điều này giúp tránh lỗi "'SectionProxy' object has no attribute 'copy'"
+   
     return dict(config['database'])
 
-# Đọc config MỘT LẦN DUY NHẤT
+
 db_settings = load_config()
 
-# (MỚI) HÀM KẾT NỐI (Tự chứa trong script)
+
 def get_db_config(db_name):
     """
     Lấy thông tin config chung và thêm 'dbname' cụ thể.
@@ -56,9 +55,7 @@ def get_control_connection():
         print(f"LỖI KẾT NỐI db_control: {e}", file=sys.stderr)
         raise # Ném lỗi ra ngoài để dừng chương trình
 
-# -------------------------------------------------------------------
-# HÀM GỌI API (Nhận URL từ CSDL)
-# -------------------------------------------------------------------
+
 
 def get_system_config(conn, config_key):
     """
@@ -125,9 +122,7 @@ def call_opensky_api(config, access_token):
     response.raise_for_status()
     return response.json()
 
-# -------------------------------------------------------------------
-# CÁC HÀM XỬ LÝ
-# -------------------------------------------------------------------
+
 
 def get_job_config(conn, job_name):
     """
@@ -206,11 +201,11 @@ def save_data_to_csv(json_response, output_dir, job_name):
         print("Thông tin: API trả về mảng 'states' rỗng. Không tạo file CSV.")
         return None
 
-    # Tạo tên file duy nhất
+
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     file_name = f"states_{job_name}_{timestamp}.csv"
     
-    # Kiểm tra và tạo thư mục nếu chưa tồn tại
+
     if not os.path.exists(output_dir):
         try:
             os.makedirs(output_dir)
@@ -218,12 +213,12 @@ def save_data_to_csv(json_response, output_dir, job_name):
              print(f"LỖI: Không thể tạo thư mục '{output_dir}': {e}", file=sys.stderr)
              raise e
 
-    # Tạo đường dẫn an toàn (cross-platform)
+
     file_path = os.path.join(output_dir, file_name)
     
     print(f"Đang lưu {len(states_array)} dòng vào: {file_path}...")
     
-    # Định nghĩa header cứng cho OpenSky States API
+
     csv_header = [
         "icao24", "callsign", "origin_country", "time_position", "last_contact",
         "longitude", "latitude", "baro_altitude", "on_ground", "velocity",
@@ -242,9 +237,7 @@ def save_data_to_csv(json_response, output_dir, job_name):
         print(f"LỖI khi ghi file CSV '{file_path}': {e}", file=sys.stderr)
         raise e
 
-# -------------------------------------------------------------------
-# HÀM MAIN
-# -------------------------------------------------------------------
+
 def main():
     if len(sys.argv) < 2:
         print("Lỗi: Vui lòng cung cấp job_name (ví dụ: python script.py crawl_europe_live_data)", file=sys.stderr)
